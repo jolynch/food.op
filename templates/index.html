@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Welcome to Food.Op{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block content %}
+<div class="align-left">
+    <h1> Recipe Database and Recommender </h1>
+    <p> Current there are {{data|length}} recipes stored in the database </p>
+    <ol>
+        {% for recipe in data %}
+
+        {% endfor %}
+    </ol>
+</div>
+{% endblock %}

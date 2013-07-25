@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+    <head>
+        {% block head %}
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/food.css') }}">
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <title>{% block title %}{% endblock %} - Food.Op</title>
+        {% endblock %}
+    </head>
+    <body>
+        <div id="content">
+            {% include 'navbar.html' %}
+            <div id="inner-content">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </body>
+</html>
+
