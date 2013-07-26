@@ -5,11 +5,22 @@
 {% endblock %}
 {% block content %}
 <div class="align-left">
-    <h1> Viewing all Users</h1>
+    <h1> User Control Panel</h1>
+    <h3> Create User </h3>
+    <label>New Name</label><input class="create-user-field" type="text">
+    <div>
+        <button class="btn create">Create</button>
+    </div>
+    <h3> All Users </h3>
     <ul>
         {% for user in users %}
-        <li><a href={{url_for('view_user', user_id=user.id)}}>{{user.name}}</a></li>
+        <li>
+            <a href={{url_for('view_user', user_id=user.id)}}>{{user.name}}</a>
+            <span>&nbsp;&nbsp;&nbsp;</span>
+            <a class="btn delete" user-id="{{user.id}}" user-name="{{user.name}}">Remove</a>
+        </li>
         {% endfor %}
     </ul>
+
 </div>
 {% endblock %}

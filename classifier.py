@@ -1,4 +1,5 @@
 from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.naive_bayes import GaussianNB
 from models import User, Vote
 import json
 import nltk
@@ -110,7 +111,9 @@ class GradientClassifier():
         training_data = positive_data + negative_data
         training_data = np.array([data_to_vector(i) for i in training_data])
         training_labels = np.array([1] * num_positive + [-1] * (len(training_data) - num_positive))
-        clf = GradientBoostingClassifier(n_estimators=100, learning_rate=1.0, max_depth=1, random_state=0)
+        clf = GradientBoostingClassifier(n_estimators=200,
+                                         learning_rate=.2,
+                                         max_depth=3)
         clf.fit(training_data, training_labels)
         self.data[user] = clf
 
@@ -122,7 +125,7 @@ class GradientClassifier():
         x,y,z = predictions.shape
         return predictions.reshape(x, z)
 
-    def guess(self, user):
+    def guess(self, user, num_predictions=5):
         if user not in self.data:
             raise Exception("You need to train first")
         predictions = self.predict(user)
@@ -133,7 +136,7 @@ class GradientClassifier():
 
         final = []
         index = len(spredictions) - 1
-        while index > 0 and (0 <= len(final) < 5):
+        while index > 0 and (0 <= len(final) < num_predictions):
             if dataset[spredictions[index][0]]['id'] not in previous_positive_ids:
                 final.append(dataset[spredictions[index][0]])
             index -= 1

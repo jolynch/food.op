@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 import json
 import os
 import random
@@ -33,20 +33,91 @@ def view_users():
     users = User.query.all()
     return render_template('users.html', users=users)
 
+def get_max_non_zero(prop, votes):
+    props = {}
+    def incr_dict(d, v):
+        if v is None or v == 0 or v == 0.0:
+            return
+        if v in d:
+            d[v] += 1
+        else:
+            d[v] = 1
+
+    for vote in votes:
+        recipe_data = recipe_lookup[vote.recipe.wiki_id]
+        if isinstance(recipe_data[prop], list):
+            for i in recipe_data[prop]:
+                incr_dict(props, i)
+        else:
+            incr_dict(props, recipe_data[prop])
+
+    sort_dict = sorted(props.iteritems(), key=lambda x: x[1], reverse=True)
+    return sort_dict[:3]
+
+def get_average_non_zero(prop, votes):
+    prop_sum = 0
+    non_zero_count = 0
+    for vote in votes:
+        recipe_data = recipe_lookup[vote.recipe.wiki_id]
+        if isinstance(recipe_data[prop], list):
+            for i in recipe_data[prop]:
+                prop_sum += recipe_data[prop]
+                if recipe_data[prop] > 0:
+                    non_zero_count += 1
+        else:
+                prop_sum += recipe_data[prop]
+                if recipe_data[prop] > 0:
+                    non_zero_count += 1
+    if non_zero_count > 0:
+        return prop_sum / non_zero_count
+    else:
+        return 0
+
 @app.route('/users/view/<int:user_id>')
 def view_user(user_id):
     user = User.query.get_or_404(user_id)
     votes = Vote.query.filter_by(user=user).all()
+    all_positive = Vote.query.filter_by(user=user, vote=1).all()
+    all_negative = Vote.query.filter_by(user=user, vote=-1).all()
+    most_popular = {
+        'category': get_max_non_zero('category', all_positive),
+        'related_categories': get_max_non_zero('related_categories', all_positive),
+        'time': get_average_non_zero('parsed_time', all_positive),
+        'servings': get_average_non_zero('parsed_servings', all_positive),
+        'ingredients': get_average_non_zero('ingredient_count', all_positive)
+    }
+    least_popular = {
+        'category': get_max_non_zero('category', all_negative),
+        'related_categories': get_max_non_zero('related_categories', all_negative),
+        'time': get_average_non_zero('parsed_time', all_negative),
+        'servings': get_average_non_zero('parsed_servings', all_negative),
+        'ingredients': get_average_non_zero('ingredient_count', all_negative)
+    }
+
     recipes = [vote.recipe for vote in votes]
-    return render_template('show_user.html', user=user, recipes=recipes, votes=votes)
+    return render_template('show_user.html', user=user, recipes=recipes,
+                           votes=votes, most_popular=most_popular,
+                           least_popular=least_popular)
 
 
-@app.route('/create/<username>', methods=['POST'])
-def create_user(username):
+@app.route('/user/create/', methods=['POST'])
+def create_user():
+    username = request.form['username']
     user = User(username)
     db.session.add(user)
     db.session.commit()
     return jsonify(action="create", user=username, id=user.id)
+
+@app.route('/user/delete/', methods=['POST'])
+def delete_user():
+    user_id = request.form['user_id']
+    user = User.query.get(user_id)
+    votes = Vote.query.filter_by(user=user)
+    for vote in votes:
+        db.session.delete(vote)
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify(action="delete")
 
 @app.route('/vote/up/<int:user_id>/<int:recipe_id>', methods=['POST'])
 def vote_up(user_id, recipe_id):
@@ -71,7 +142,6 @@ def vote_remove(user_id, recipe_id):
         db.session.delete(vote)
     db.session.commit()
     return jsonify(action="vote-remove", user=user.name, recipe=recipe.wiki_id)
-
 
 def add_vote(user, recipe, vote):
     dbvote = Vote(user, recipe, vote)

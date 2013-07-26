@@ -28,3 +28,12 @@ div.spaced {
     border: 1px solid grey;
 }
 
+div.iframe-container{
+    width: 80%;
+    height: 25em;
+}
+iframe{
+    width: 100%;
+    height: 100%;
+}
+

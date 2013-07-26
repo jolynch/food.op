@@ -12,15 +12,62 @@
         <a class='btn btn-large' href={{url_for('get_recommendation', user_id = user.id)}}>Make a Recommendation</a>
     </div>
 
-    <h3> Votes </h3>
+    <h3> Stats </h3>
+    <h4> Your most liked attributes </h4>
+    <div class="row">
+        <div class="span2"><strong>Category</strong></div>
+        <div class="span6">{{most_popular['category']}}</div>
+    </div>
+    <div class="row">
+        <div class="span2"><strong>Related Categories</strong></div>
+        <div class="span6">{{most_popular['related_categories']}}</div>
+    </div>
+    <div class="row">
+        <div class="span2"><strong>Average Prep Time</strong></div>
+        <div class="span6">{{ '%0.2f' | format(most_popular['time']) }}</div>
+    </div>
+    <div class="row">
+        <div class="span2"><strong>Average Servings</strong></div>
+        <div class="span6">{{ '%0.2f' | format(most_popular['servings']) }}</div>
+    </div>
+    <div class="row">
+        <div class="span2"><strong>Average Number of Ingredients</strong></div>
+        <div class="span6">{{ '%0.2f' | format(most_popular['ingredients']) }}</div>
+    </div>
+
+    <h4> Your least liked attributes </h4>
+    <div class="row">
+        <div class="span2"><strong>Category</strong></div>
+        <div class="span6">{{least_popular['category']}}</div>
+    </div>
+    <div class="row">
+        <div class="span2"><strong>Related Categories</strong></div>
+        <div class="span6">{{least_popular['related_categories']}}</div>
+    </div>
+    <div class="row">
+        <div class="span2"><strong>Average Prep Time</strong></div>
+        <div class="span6">{{ '%0.2f' | format(least_popular['time']) }}</div>
+    </div>
+    <div class="row">
+        <div class="span2"><strong>Average Servings</strong></div>
+        <div class="span6">{{ '%0.2f' | format(least_popular['servings']) }}</div>
+    </div>
+    <div class="row">
+        <div class="span2"><strong>Average Number of Ingredients</strong></div>
+        <div class="span6">{{ '%0.2f' | format(least_popular['ingredients']) }}</div>
+    </div>
+
+
+    <h3> Votes ({{votes | length}})</h3>
     {% for vote in votes %}
     <div>
         <div class="recipe" recipe-id="{{vote.recipe.id}}"></div>
         {% if vote.vote == 1 %}
-        <button class="btn btn-success remove" user-id="{{vote.user.id}}" recipe-id="{{vote.recipe.id}}">Remove Up Vote</a>
+        <button class="btn btn-success remove" user-id="{{vote.user.id}}" recipe-id="{{vote.recipe.id}}">Remove Up Vote</button>
         {% else %}
-        <button class="btn btn-danger remove" user-id="{{vote.user.id}}" recipe-id="{{vote.recipe.id}}">Remove Down Vote</a>
+        <button class="btn btn-danger remove" user-id="{{vote.user.id}}" recipe-id="{{vote.recipe.id}}">Remove Down Vote</button>
         {% endif %}
+        <hr>
     </div>
     {% endfor %}
 </div>

@@ -2,6 +2,9 @@
     <div class="span2">Title</div><div class="span4">{{recipe['title']}}</div>
 </div>
 <div class="row">
-    <div class="span2">Link</div>
-    <div class="span4"><a href="{{recipe['link']}}">View on Wikibooks</a></div>
+    <div class="span2">Category</div><div class="span4">{{recipe['category']}}</div>
+
+</div>
+<div class="iframe-container">
+    <iframe src="{{recipe['link']}}"></iframe>
 </div>

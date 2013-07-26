@@ -13,12 +13,13 @@
     </p>
     {% for recipe in recipes %}
         <div class="recipe" recipe-id="{{recipe.id}}"> </div>
-        <div class="row bottom">
+        <div class="row">
             <div class="btn-group">
-                <button class="btn btn-success upvote" user-id="{{user.id}}" recipe-id="{{recipe.id}}">Would Cook </a>
-                <button class="btn btn-danger downvote" user-id="{{user.id}}" recipe-id="{{recipe.id}}">Nope, Not My Thing</a>
+                <button class="btn btn-success upvote" user-id="{{user.id}}" recipe-id="{{recipe.id}}">Would Cook </button>
+                <button class="btn btn-danger downvote" user-id="{{user.id}}" recipe-id="{{recipe.id}}">Nope, Not My Thing</button>
             </div>
         </div>
+        <hr>
     {% endfor %}
 </div>
 {% endblock %}
