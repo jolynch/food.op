@@ -2,11 +2,15 @@ from flask import Flask, render_template, jsonify
 from flask.ext.sqlalchemy import SQLAlchemy
 import json
 import os
+import random
 
 app = Flask(__name__)
 app.debug = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///food.db'
 db = SQLAlchemy(app)
+
+with open("data/recipe.json") as infile:
+    dataset = json.load(infile)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -74,6 +78,12 @@ def add_vote(user, recipe, vote):
     vote = Vote(user, recipe, vote)
     db.session.add(vote)
     db.session.commit()
+
+@app.route('/initialize/<int:user_id>')
+def initialize(user_id):
+    user = User.query.get_or_404(user_id)
+    recipes = random.sample(Recipe.query.all(), 10)
+    return render_template('initialize.html', user=user, recipes=recipes)
 
 
 if __name__ == '__main__':
