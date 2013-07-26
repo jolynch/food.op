@@ -10,7 +10,7 @@
     <div class="pagination">
     <ol>
         {% for recipe in data %}
-        <li><a href="{{recipe['link']}}"> {{recipe['title']}}</a></li>
+        <li><a href="{{recipe['link']}}"> {{recipe['title']}} -- {{recipe['id']}}</a></li>
         {% endfor %}
     </ol>
     </div>
