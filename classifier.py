@@ -112,7 +112,7 @@ class GradientClassifier():
         training_data = np.array([data_to_vector(i) for i in training_data])
         training_labels = np.array([1] * num_positive + [-1] * (len(training_data) - num_positive))
         clf = GradientBoostingClassifier(n_estimators=200,
-                                         learning_rate=.2,
+                                         learning_rate=.08,
                                          max_depth=3)
         clf.fit(training_data, training_labels)
         self.data[user] = clf
