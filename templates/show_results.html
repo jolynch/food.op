@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Initializing Your Experience{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block content %}
+<div class="align-left">
+    <h1> Recipe Recommendations </h1>
+
+    <h2> I suggest that you try one of the following recipes: </h2>
+    {% for recipe in recipes %}
+        <div class="recipe" recipe-id="{{recipe.id}}"> </div>
+        <div class="row bottom">
+            <div class="btn-group">
+                <button class="btn btn-success upvote" user-id="{{user.id}}" recipe-id="{{recipe.id}}">Would Cook </a>
+                <button class="btn btn-danger downvote" user-id="{{user.id}}" recipe-id="{{recipe.id}}">Nope, Not My Thing</a>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

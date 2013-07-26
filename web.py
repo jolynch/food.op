@@ -1,49 +1,21 @@
 from flask import Flask, render_template, jsonify
-from flask.ext.sqlalchemy import SQLAlchemy
 import json
 import os
 import random
+from models import db, User, Vote, Recipe
+from classifier import GradientClassifier
 
 app = Flask(__name__)
 app.debug = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///food.db'
-db = SQLAlchemy(app)
+app.classifier = GradientClassifier()
+db.init_app(app)
 
 with open("data/recipe.json") as infile:
     dataset = json.load(infile)
     recipe_lookup = {}
     for data in dataset:
         recipe_lookup[data['id']] = data
-
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), unique=True)
-    votes = db.relationship('Vote', backref='user', lazy='dynamic')
-
-    def __init__(self, name):
-        self.name = name
-
-    def __repr__(self):
-        return '<User %r>' % self.name
-
-class Vote(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    vote = db.Column(db.Integer)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    recipe_id = db.Column(db.Integer, db.ForeignKey('recipe.id'))
-
-    def __init__(self, user, recipe, vote):
-        self.user = user
-        self.recipe = recipe
-        self.vote = vote
-
-class Recipe(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    wiki_id = db.Column(db.Integer)
-    votes = db.relationship('Vote', backref='recipe', lazy='dynamic')
-
-    def __init__(self, wiki_id):
-        self.wiki_id = wiki_id
 
 @app.route('/')
 def index():
@@ -122,12 +94,19 @@ def get_recipe(recipe_id):
     recipe = Recipe.query.get_or_404(recipe_id)
     return render_template('recipe.html', recipe=recipe_lookup[recipe.wiki_id])
 
-@app.route('/view/<int:user_id>')
-def show_votes(user_id):
+@app.route('/recommend/<int:user_id>')
+def get_recommendation(user_id):
     user = User.query.get_or_404(user_id)
-    recipes = random.sample(Recipe.query.all(), 10)
-    return render_template('show_recipes.html', user=user, recipes=recipes)
+    if not app.classifier.has_trained(user):
+        app.classifier.train(user)
+    val = app.classifier.guess(user)
+    val = [v['id'] for v in val]
+    recipes = []
+    for v in val:
+        recipe = Recipe.query.filter_by(wiki_id=v).first()
+        recipes.append(recipe)
 
+    return render_template("show_results.html", user=user, recipes = recipes)
 
 
 if __name__ == '__main__':

@@ -1,5 +1,5 @@
 from sklearn.ensemble import GradientBoostingClassifier
-from web import User, Vote
+from models import User, Vote
 import json
 import nltk
 import numpy as np
@@ -95,6 +95,9 @@ class GradientClassifier():
     def __init__(self):
         self.data = {}
 
+    def has_trained(self, user):
+        return user in self.data
+
     def train(self, user):
         votes = Vote.query.filter_by(user=user).all()
         postive_ids = [v.recipe.wiki_id for v in votes if v.vote == 1]
@@ -125,10 +128,14 @@ class GradientClassifier():
         predictions = self.predict(user)
         spredictions = [(idx, val[1]) for idx, val in enumerate(predictions)]
         spredictions.sort(key = lambda x: x[1])
+        previous_votes = Vote.query.filter_by(user=user).all()
+        previous_positive_ids = [v.recipe.wiki_id for v in previous_votes if v.vote == 1]
+
         final = []
         index = len(spredictions) - 1
-        while (spredictions[-1][1] <= spredictions[index][1]):
-            final.append(dataset[spredictions[index][0]])
+        while index > 0 and (0 <= len(final) < 5):
+            if dataset[spredictions[index][0]]['id'] not in previous_positive_ids:
+                final.append(dataset[spredictions[index][0]])
             index -= 1
 
         return final
