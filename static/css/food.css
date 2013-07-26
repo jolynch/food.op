@@ -9,3 +9,22 @@
     margin-right: auto;
     text-align: left;
 }
+
+.bottom {
+    border-bottom: 1px solid black;
+}
+
+.no-events {
+    pointer-events: none;
+}
+
+div {
+    margin: .1em;
+    padding: .1em;
+}
+
+div.spaced {
+    margin: 1em;
+    border: 1px solid grey;
+}
+

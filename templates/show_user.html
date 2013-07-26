@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block content %}
+<div class="align-left">
+    <h1> User page for {{user.name | capitalize}}</h1>
+    <h3> Actions </h3>
+    <div class="btn-group">
+        <a class='btn btn-large' href={{url_for('initialize', user_id = user.id)}}>Initialize</a>
+        <a class='btn btn-large' href=#>Make a Recommendation</a>
+    </div>
+
+    <h3> Votes </h3>
+    {% for vote in votes %}
+    <div>
+        <div class="recipe" recipe-id="{{vote.recipe.id}}"></div>
+        {% if vote.vote == 1 %}
+        <button class="btn btn-success remove" user-id="{{vote.user.id}}" recipe-id="{{vote.recipe.id}}">Remove Up Vote</a>
+        {% else %}
+        <button class="btn btn-danger remove" user-id="{{vote.user.id}}" recipe-id="{{vote.recipe.id}}">Remove Down Vote</a>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

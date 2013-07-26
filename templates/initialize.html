@@ -5,14 +5,20 @@
 {% endblock %}
 {% block content %}
 <div class="align-left">
-    <h1> Recipe Database and Recommender </h1>
-    <p> Current there are {{data|length}} recipes stored in the database </p>
-    <div class="pagination">
-    <ol>
-        {% for recipe in data %}
-        <li><a href="{{recipe['link']}}"> {{recipe['title']}} -- {{recipe['id']}}</a></li>
-        {% endfor %}
-    </ol>
-    </div>
+    <h1> Recipe Calibration </h1>
+
+    <p> Please take a moment and vote for the following recipes. If it is
+    something that you would cook, simply up vote it.  If it is something that 
+    you do not think you would cook, down vote it.
+    </p>
+    {% for recipe in recipes %}
+        <div class="recipe" recipe-id="{{recipe.id}}"> </div>
+        <div class="row bottom">
+            <div class="btn-group">
+                <button class="btn btn-success upvote" user-id="{{user.id}}" recipe-id="{{recipe.id}}">Would Cook </a>
+                <button class="btn btn-danger downvote" user-id="{{user.id}}" recipe-id="{{recipe.id}}">Nope, Not My Thing</a>
+            </div>
+        </div>
+    {% endfor %}
 </div>
 {% endblock %}

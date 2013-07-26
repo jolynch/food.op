@@ -2,6 +2,7 @@ from mwlib import dumpparser
 import mwlib.uparser as parser
 from mwlib.parser.nodes import *
 import json
+import re
 
 def parse_tree(file_name):
     dp = dumpparser.DumpParser("data/wiki-data.xml")
@@ -43,8 +44,10 @@ def convert_data(data):
             category, servings, time, difficulty = get_summary(r_data)
             data_item['category'] = category
             data_item['servings'] = servings
+            data_item['parsed_servings'] = convert_time(servings)
             data_item['related_categories'] = get_categories(r_data)
             data_item['time'] = time
+            data_item['parsed_time'] = convert_time(time)
             data_item['difficulty'] = difficulty
             ingredients = get_ingredients(r_data)
             data_item['ingredient_count'] = len(ingredients)
@@ -109,6 +112,79 @@ def get_procedure(article):
     except:
         pass
     return ""
+
+
+def convert_number(num):
+    try:
+        m = re.match("(\d*.*\d*)\xbc", num)
+        if m:
+            if m.groups()[0]:
+                return float(m.groups()[0]) + .25
+            else:
+                return .25
+
+        m = re.match("(\d*.*\d*)\xbd", num)
+        if m:
+            if m.groups()[0]:
+                return float(m.groups()[0]) + .5
+            else:
+                return .5
+
+        m = re.match("(\d*.*\d*)\xbe", num)
+        if m:
+            if m.groups()[0]:
+                return float(m.groups()[0]) + .75
+            else:
+                return .75
+        m = re.match("(\d*.*\d+)", num)
+        if m:
+            return float(m.groups()[0])
+    except Exception as e:
+        print e
+        return 0
+
+def convert_unit(unit):
+    try:
+        m = re.match("minute", unit)
+        if m:
+            return 1
+        m = re.match("hour", unit)
+        if m:
+            return 60
+    except Exception as e:
+        print e
+        return 1
+    return 1
+
+
+def convert_time(t):
+    try:
+        def clense(s, c, r=""):
+            return s.replace(c, r).strip()
+        t = t.lower()
+        for c in ("<", "~", "time=", "prep:", "Time=", "Time =", "What?"):
+            t = clense(t, c)
+        t = clense(t, u'\u2013', "-")
+        t = t.split(" ")
+
+        num = t[0].strip()
+        unit = 1
+
+        if len(num.split("-")) > 1:
+            s = num.split("-")
+            left = convert_number(s[0].strip())
+            right = convert_number(s[1].strip())
+            num = (left + right) / 2
+        else:
+            num = convert_number(num)
+
+        if len(t) > 1:
+            unit = t[1].strip()
+            unit = convert_unit(unit)
+        return num * unit
+    except Exception:
+        return 0
+
 
 if __name__ == '__main__':
     data = parse_tree("data/wiki-data.xml")
