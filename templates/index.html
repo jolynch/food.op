@@ -7,10 +7,12 @@
 <div class="align-left">
     <h1> Recipe Database and Recommender </h1>
     <p> Current there are {{data|length}} recipes stored in the database </p>
+    <div class="pagination">
     <ol>
         {% for recipe in data %}
-
+        <li><a href="{{recipe['link']}}"> {{recipe['title']}}</a></li>
         {% endfor %}
     </ol>
+    </div>
 </div>
 {% endblock %}
